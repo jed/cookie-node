@@ -29,7 +29,7 @@ process.Promise.prototype.combine = function() {
 
 var http = require( "http" ),
     sys = require( "sys" ),
-    path = module.filename.replace( /[^\/]+$/, "" ),
+    path = require("path").dirname( module.filename ) + "/",
     dependencies = [ "sha1.js", "base64.js" ],
     promises = dependencies
       .map( function( file ) { return path + file } )
