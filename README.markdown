@@ -43,4 +43,6 @@ When you set a secure cookie, the value is stored alongside its expiration date,
 
 If you'd like to clear a cookie, just use `res.clearCookie( name )`.
 
+This was made possible thanks to webtoolkit and pajhome, and their awesome base64 and SHA1 libraries.
+
 That's about it. Send any questions or comments [here](http://twitter.com/jedschmidt).
