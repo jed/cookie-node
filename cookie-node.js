@@ -67,35 +67,32 @@ process.mixin( http.IncomingMessage.prototype, {
     var value = this.getCookie( name ),
         parts, expires, remoteSig, localSig;
         
-    if ( !value ) {
-      sys.error( "No such cookie: " + name )
-      return null;
-    }
+    if ( !value )
+      return error( "No such cookie: " + name )
         
     parts = value.split("|");
   
-    if ( parts.length !== 3 ) {
-      sys.error( "Invalid cookie: " + name )
-      return null;
-    }
+    if ( parts.length !== 3 )
+      return error( "Invalid cookie: " + name )
   
     value = Base64.decode( parts[0] );
     expires = new Date( +parts[1] );
     remoteSig = parts[2];
     
-    if ( expires < new Date ) {
-      sys.error( "Expired cookie: " + name )
-      return null;
-    }
+    if ( expires < new Date )
+      return error( "Expired cookie: " + name )
     
     localSig = hex_hmac_sha1( parts.slice( 0, 2 ).join("|"), cookieSecret() )
   
-    if ( localSig !== remoteSig ) {
-      sys.error( "Invalid signature: " + name )
+    if ( localSig !== remoteSig )
+      return error( "Invalid signature: " + name )
+    
+    return value;
+
+    function error( message ){
+      sys.error( message );
       return null;
     }
-    
-    return value;  
   }
 });
 
