@@ -132,7 +132,7 @@ process.mixin( http.ServerResponse.prototype, {
     options = options || {};
     options.expires = options.expires || new Date( +new Date + 30 * 24 * 60 * 60 * 1000 )
     
-    var value = [ Base64.encode( value ).replace("=", ""), +options.expires ],
+    var value = [ Base64.encode( value ).replace(/=/g, ""), +options.expires ],
         signature = hex_hmac_sha1( value.join("|"), cookieSecret() )
         
     value.push( signature );
