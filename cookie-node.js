@@ -41,6 +41,35 @@ var http = require( "http" ),
     process.compile( arguments[ i ][ 0 ], dependencies[ i ] );
 })
 
+processCookie = exports.processCookie = function(name, value) {
+  var parts, expires, remoteSig, localSig;
+
+  parts = value.split("|");
+
+  if ( parts.length !== 3 ) {
+    sys.error( "Invalid cookie: " + name )
+    return null;
+  }
+
+  value = Base64.decode( parts[0] );
+  expires = new Date( +parts[1] );
+  remoteSig = parts[2];
+
+  if ( expires < new Date ) {
+    sys.error( "Expired cookie: " + name )
+    return null;
+  }
+
+  localSig = hex_hmac_sha1( parts.slice( 0, 2 ).join("|"), cookieSecret() )
+
+  if ( localSig !== remoteSig ) {
+    sys.error( "Invalid signature: " + name )
+    return null;
+  }
+
+  return value;  
+}
+
 process.mixin( http.IncomingMessage.prototype, {
 
   _parseCookies: function() {
@@ -64,38 +93,14 @@ process.mixin( http.IncomingMessage.prototype, {
   },
   
   getSecureCookie: function( name ) {
-    var value = this.getCookie( name ),
-        parts, expires, remoteSig, localSig;
+    var value = this.getCookie( name );
         
     if ( !value ) {
       sys.error( "No such cookie: " + name )
       return null;
     }
-        
-    parts = value.split("|");
-  
-    if ( parts.length !== 3 ) {
-      sys.error( "Invalid cookie: " + name )
-      return null;
-    }
-  
-    value = Base64.decode( parts[0] );
-    expires = new Date( +parts[1] );
-    remoteSig = parts[2];
-    
-    if ( expires < new Date ) {
-      sys.error( "Expired cookie: " + name )
-      return null;
-    }
-    
-    localSig = hex_hmac_sha1( parts.slice( 0, 2 ).join("|"), cookieSecret() )
-  
-    if ( localSig !== remoteSig ) {
-      sys.error( "Invalid signature: " + name )
-      return null;
-    }
-    
-    return value;  
+
+    return processCookie(name, value);
   }
 });
 
@@ -128,16 +133,24 @@ process.mixin( http.ServerResponse.prototype, {
     cookies.push( cookie.join("") );
   },
   
-  setSecureCookie: function( name, value, options ) {
+  generateCookieValue: function( value, options ) {
     options = options || {};
     options.expires = options.expires || new Date( +new Date + 30 * 24 * 60 * 60 * 1000 )
-    
+      
     var value = [ Base64.encode( value ).replace("=", ""), +options.expires ],
         signature = hex_hmac_sha1( value.join("|"), cookieSecret() )
-        
+
     value.push( signature );
     value = value.join("|");
     
+    return value;
+  },
+  
+  setSecureCookie: function( name, value, options ) {
+    options = options || {};
+    options.expires = options.expires || new Date( +new Date + 30 * 24 * 60 * 60 * 1000 )
+
+    var value = generateCookieValue(value, options);    
     this.setCookie( name, value, options );
   },
   
