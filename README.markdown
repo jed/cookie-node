@@ -1,6 +1,8 @@
 cookie-node.js
 ============
 
+NOTE: This library is out of date with the current node.js API. I'm no longer using it, so please fork n' fix, and I'll pull the changes!
+
 `cookie-node` is a cookie module for [node.js](http://nodejs.org/), based loosely on Tornado's approach to [signed cookies](http://www.tornadoweb.org/documentation#cookies-and-secure-cookies).
 
 To start, require the library in your app:
