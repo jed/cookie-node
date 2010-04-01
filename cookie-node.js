@@ -47,7 +47,7 @@ processCookie = exports.processCookie = function(name, value) {
   parts = value.split("|");
 
   if ( parts.length !== 3 ) {
-    sys.error( "Invalid cookie: " + name )
+    sys.error( "Invalid cookie: " + name );
     return null;
   }
 
@@ -56,19 +56,19 @@ processCookie = exports.processCookie = function(name, value) {
   remoteSig = parts[2];
 
   if ( expires < new Date ) {
-    sys.error( "Expired cookie: " + name )
+    sys.error( "Expired cookie: " + name );
     return null;
   }
 
-  localSig = hex_hmac_sha1( parts.slice( 0, 2 ).join("|"), cookieSecret() )
+  localSig = hex_hmac_sha1( parts.slice( 0, 2 ).join("|"), cookieSecret() );
 
   if ( localSig !== remoteSig ) {
-    sys.error( "Invalid signature: " + name )
+    sys.error( "Invalid signature: " + name );
     return null;
   }
 
   return value;  
-}
+};
 
 process.mixin( http.IncomingMessage.prototype, {
 
@@ -82,7 +82,7 @@ process.mixin( http.IncomingMessage.prototype, {
           value = parts[1].trim();
           
       ret[ name ] = value;  
-    })
+    });
     
     return this.cookies = ret;
   },
@@ -96,7 +96,7 @@ process.mixin( http.IncomingMessage.prototype, {
     var value = this.getCookie( name );
         
     if ( !value ) {
-      sys.error( "No such cookie: " + name )
+      sys.error( "No such cookie: " + name );
       return null;
     }
 
@@ -135,10 +135,9 @@ process.mixin( http.ServerResponse.prototype, {
   
   generateCookieValue: function( value, options ) {
     options = options || {};
-    options.expires = options.expires || new Date( +new Date + 30 * 24 * 60 * 60 * 1000 )
-    
-    var value = [ Base64.encode( value ).replace(/=/g, ""), +options.expires ],
-        signature = hex_hmac_sha1( value.join("|"), cookieSecret() )
+    options.expires = options.expires || new Date( +new Date + 30 * 24 * 60 * 60 * 1000 );
+    value = [ Base64.encode( value ).replace(/=/g, ""), +options.expires ];
+    var signature = hex_hmac_sha1( value.join("|"), cookieSecret() );
 
     value.push( signature );
     value = value.join("|");
@@ -148,16 +147,16 @@ process.mixin( http.ServerResponse.prototype, {
   
   setSecureCookie: function( name, value, options ) {
     options = options || {};
-    options.expires = options.expires || new Date( +new Date + 30 * 24 * 60 * 60 * 1000 )
+    options.expires = options.expires || new Date( +new Date + 30 * 24 * 60 * 60 * 1000 );
 
-    var value = generateCookieValue(value, options);    
+    value = generateCookieValue(value, options);
     this.setCookie( name, value, options );
   },
   
   clearCookie: function( name, options ) {
     options.expires = new Date( +new Date - 30 * 24 * 60 * 60 * 1000 );
     this.setCookie( name, "", options );
-  },
+  }
 
 });
 
