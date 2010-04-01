@@ -18,15 +18,15 @@ var b64pad  = ""; /* base-64 pad character. "=" for strict RFC compliance   */
  * These are the functions you'll usually want to call
  * They take string arguments and return either hex or base-64 encoded strings
  */
-function hex_sha1(s)    { return rstr2hex(rstr_sha1(str2rstr_utf8(s))); }
-function b64_sha1(s)    { return rstr2b64(rstr_sha1(str2rstr_utf8(s))); }
-function any_sha1(s, e) { return rstr2any(rstr_sha1(str2rstr_utf8(s)), e); }
-function hex_hmac_sha1(k, d)
-  { return rstr2hex(rstr_hmac_sha1(str2rstr_utf8(k), str2rstr_utf8(d))); }
-function b64_hmac_sha1(k, d)
-  { return rstr2b64(rstr_hmac_sha1(str2rstr_utf8(k), str2rstr_utf8(d))); }
-function any_hmac_sha1(k, d, e)
-  { return rstr2any(rstr_hmac_sha1(str2rstr_utf8(k), str2rstr_utf8(d)), e); }
+exports.hex_sha1 = function(s)    { return rstr2hex(rstr_sha1(str2rstr_utf8(s))); };
+exports.b64_sha1 = function(s)    { return rstr2b64(rstr_sha1(str2rstr_utf8(s))); };
+exports.any_sha1 = function(s, e) { return rstr2any(rstr_sha1(str2rstr_utf8(s)), e); };
+exports.hex_hmac_sha1 = function(k, d)
+  { return rstr2hex(rstr_hmac_sha1(str2rstr_utf8(k), str2rstr_utf8(d))); };
+exports.b64_hmac_sha1 = function (k, d)
+  { return rstr2b64(rstr_hmac_sha1(str2rstr_utf8(k), str2rstr_utf8(d))); };
+exports.any_hmac_sha1 = function(k, d, e)
+  { return rstr2any(rstr_hmac_sha1(str2rstr_utf8(k), str2rstr_utf8(d)), e); };
 
 /*
  * Perform a simple self-test to see if the VM is working
@@ -149,7 +149,7 @@ function rstr2any(input, encoding)
 
   /* Append leading zero equivalents */
   var full_length = Math.ceil(input.length * 8 /
-                                    (Math.log(encoding.length) / Math.log(2)))
+                                    (Math.log(encoding.length) / Math.log(2)));
   for(i = output.length; i < full_length; i++)
     output = encoding[0] + output;
 
@@ -223,10 +223,11 @@ function str2rstr_utf16be(input)
  */
 function rstr2binb(input)
 {
-  var output = Array(input.length >> 2);
-  for(var i = 0; i < output.length; i++)
+  var output = Array(input.length >> 2),
+      i;
+  for(i = 0; i < output.length; i++)
     output[i] = 0;
-  for(var i = 0; i < input.length * 8; i += 8)
+  for(i = 0; i < input.length * 8; i += 8)
     output[i>>5] |= (input.charCodeAt(i / 8) & 0xFF) << (24 - i % 32);
   return output;
 }

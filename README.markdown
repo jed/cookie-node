@@ -1,8 +1,6 @@
 cookie-node.js
 ============
 
-NOTE: This library is out of date with the current node.js API. I'm no longer using it, so please fork n' fix, and I'll pull the changes!
-
 `cookie-node` is a cookie module for [node.js](http://nodejs.org/), based loosely on Tornado's approach to [signed cookies](http://www.tornadoweb.org/documentation#cookies-and-secure-cookies).
 
 To start, require the library in your app:
@@ -17,9 +15,9 @@ This extends the `ServerRequest` and `ServerResponse` objects, allowing you to g
 
       res.setCookie( "name_length", length );
 
-      res.sendHeader(200, {"Content-Type": "text/html"});	
-      res.sendBody( "Your name has " + length + " characters." );	
-      res.finish();
+      res.writeHead(200, {"Content-Type": "text/html"});	
+      res.write( "Your name has " + length + " characters." );	
+      res.close();
     }
 
 You can also set a cookie secret to enable signed cookies, and prevent forged cookies:
@@ -34,9 +32,9 @@ so that the above becomes:
 
       res.setSecureCookie( "name_length", length );
 
-      res.sendHeader(200, {"Content-Type": "text/html"});	
-      res.sendBody( "Your name has " + length + " characters." );	
-      res.finish();
+      res.writeHead(200, {"Content-Type": "text/html"});	
+      res.write( "Your name has " + length + " characters." );	
+      res.close();
     }
     
 (You don't need to set the secret, but your cookies will end up being invalidated when the server restarts, and you will be yelled at.)

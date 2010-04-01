@@ -1,46 +1,8 @@
-// something like this should be in the process module
-process.Promise.prototype.combine = function() {
-  var args = Array.prototype.slice.call( arguments ),
-      count = args.length,
-      results = new Array( count ),
-      index = 0,
-      self = this;
-      
-  if ( count == 1 && args[0] instanceof Array )
-    return arguments.callee.apply( self, args[0] );
-    
-  args.forEach( function( promise ) {
-    var thisIndex = index++;
-
-    promise.addErrback( function() {
-      results[ thisIndex ] = arguments;
-      self.emitError.apply( self, results )
-    });
- 
-    promise.addCallback( function() {
-      results[ thisIndex ] = arguments;
-      if ( !--count )
-        self.emitSuccess.apply( self, results );
-    });
-  });
-  
-  return self;
-}
-
 var http = require( "http" ),
     sys = require( "sys" ),
-    path = require("path").dirname( module.filename ) + "/",
-    dependencies = [ "sha1.js", "base64.js" ],
-    promises = dependencies
-      .map( function( file ) { return path + file } )
-      .map( require( "posix" ).cat ),
-    _sendHeader = http.ServerResponse.prototype.sendHeader;
+    base64 = require('./base64'),
+    hex_hmac_sha1 = require('./sha1').hex_hmac_sha1;
  
-( new process.Promise ).combine( promises ).addCallback( function() {
-  for ( var i = 0, len = arguments.length; i < len; i++ )
-    process.compile( arguments[ i ][ 0 ], dependencies[ i ] );
-})
-
 processCookie = exports.processCookie = function(name, value) {
   var parts, expires, remoteSig, localSig;
 
@@ -51,7 +13,7 @@ processCookie = exports.processCookie = function(name, value) {
     return null;
   }
 
-  value = Base64.decode( parts[0] );
+  value = base64.decode( parts[0] );
   expires = new Date( +parts[1] );
   remoteSig = parts[2];
 
@@ -105,10 +67,11 @@ process.mixin( http.IncomingMessage.prototype, {
 });
 
 // this probably isn't kosher, but it's the best way to keep the interface sane.
-http.ServerResponse.prototype.sendHeader = function ( statusCode, headers ) {
+var _writeHead = http.ServerResponse.prototype.writeHead;
+http.ServerResponse.prototype.writeHead = function ( statusCode, headers ) {
   var cookies = this.cookies || ( this.cookies = [] );
   headers["Set-Cookie"] = cookies.join(", ");
-  _sendHeader.call( this, statusCode, headers );
+  _writeHead.call( this, statusCode, headers );
 };
 
 process.mixin( http.ServerResponse.prototype, {
@@ -136,7 +99,7 @@ process.mixin( http.ServerResponse.prototype, {
   generateCookieValue: function( value, options ) {
     options = options || {};
     options.expires = options.expires || new Date( +new Date + 30 * 24 * 60 * 60 * 1000 );
-    value = [ Base64.encode( value ).replace(/=/g, ""), +options.expires ];
+    value = [ base64.encode( value ).replace(/=/g, ""), +options.expires ];
     var signature = hex_hmac_sha1( value.join("|"), cookieSecret() );
 
     value.push( signature );
