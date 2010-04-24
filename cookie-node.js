@@ -40,8 +40,8 @@ var mutateHttp = function(http){
 
           header.split(";").forEach( function( cookie ) {
             var parts = cookie.split("="),
-                name = parts[0].trim(),
-                value = parts[1].trim();
+                name =  (parts[0] ? parts[0].trim() : ''),
+                value = (parts[1] ? parts[1].trim() : '');
 
             ret[ name ] = value;  
           });
