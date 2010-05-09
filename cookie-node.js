@@ -3,25 +3,26 @@ var sys = require( "sys" ),
     hex_hmac_sha1 = require('./sha1').hex_hmac_sha1;
  
 processCookie = exports.processCookie = function(name, value) {
-  var parts, expires, remoteSig, localSig;
+  var len, parts, expires, remoteSig, localSig;
 
   parts = value.split("|");
 
-  if ( parts.length !== 3 ) {
+  if ( parts.length !== 4 ) {
     sys.error( "Invalid cookie: " + name );
     return null;
   }
 
-  value = base64.decode( parts[0] );
-  expires = new Date( +parts[1] );
-  remoteSig = parts[2];
+  len = parts[0];
+  value = base64.decode( parts[1] ).substr(0, len);
+  expires = new Date( +parts[2] );
+  remoteSig = parts[3];
 
   if ( expires < new Date ) {
     sys.error( "Expired cookie: " + name );
     return null;
   }
 
-  localSig = hex_hmac_sha1( parts.slice( 0, 2 ).join("|"), cookieSecret() );
+  localSig = hex_hmac_sha1( parts.slice( 0, 3 ).join("|"), cookieSecret() );
 
   if ( localSig !== remoteSig ) {
     sys.error( "Invalid signature: " + name );
@@ -33,7 +34,7 @@ processCookie = exports.processCookie = function(name, value) {
 
 
 var mutateHttp = function(http){
-    
+
     http.IncomingMessage.prototype._parseCookies = function() {
           var header = this.headers["cookie"] || "",
               ret = {};
@@ -97,7 +98,7 @@ var mutateHttp = function(http){
      http.ServerResponse.prototype.generateCookieValue = function( value, options ) {
          options = options || {};
          options.expires = options.expires || new Date( +new Date + 30 * 24 * 60 * 60 * 1000 );
-         value = [ base64.encode( value ).replace(/=/g, ""), +options.expires ];
+         value = [ (value + '').length, base64.encode( value ), +options.expires ];
          var signature = hex_hmac_sha1( value.join("|"), cookieSecret() );
 
          value.push( signature );
@@ -106,10 +107,10 @@ var mutateHttp = function(http){
          return value;
       };
      
-     http.ServerResponse.prototype. setSecureCookie = function( name, value, options ) {
+     http.ServerResponse.prototype.setSecureCookie = function( name, value, options ) {
          options = options || {};
          options.expires = options.expires || new Date( +new Date + 30 * 24 * 60 * 60 * 1000 );
-         value = generateCookieValue(value, options);
+         value = this.generateCookieValue(value, options);
          this.setCookie( name, value, options );
      };
      
