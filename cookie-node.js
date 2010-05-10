@@ -5,7 +5,7 @@ var sys = require( "sys" ),
 processCookie = exports.processCookie = function(name, value) {
   var len, parts, expires, remoteSig, localSig;
 
-  parts = value.split("|");
+  parts = value.replace(/\*/g, '=').split("|");
 
   if ( parts.length !== 4 ) {
     sys.error( "Invalid cookie: " + name );
@@ -102,7 +102,7 @@ var mutateHttp = function(http){
          var signature = hex_hmac_sha1( value.join("|"), cookieSecret() );
 
          value.push( signature );
-         value = value.join("|");
+         value = value.join("|").replace(/=/g, '*');
 
          return value;
       };
