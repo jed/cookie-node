@@ -1,7 +1,7 @@
 var sys = require( "sys" ),
     base64 = require('./base64'),
     hex_hmac_sha1 = require('./sha1').hex_hmac_sha1;
- 
+
 processCookie = exports.processCookie = function(name, value) {
   var len, parts, expires, remoteSig, localSig;
 
@@ -29,7 +29,7 @@ processCookie = exports.processCookie = function(name, value) {
     return null;
   }
 
-  return value;  
+  return value;
 };
 
 
@@ -44,18 +44,18 @@ var mutateHttp = function(http){
                 name =  (parts[0] ? parts[0].trim() : ''),
                 value = (parts[1] ? parts[1].trim() : '');
 
-            ret[ name ] = value;  
+            ret[ name ] = value;
           });
 
           return this.cookies = ret;
       };
-      
-     
+
+
      http.IncomingMessage.prototype.getCookie = function( name ) {
           var cookies = this.cookies || this._parseCookies();
           return cookies[ name ] || null;
      };
-     
+
      http.IncomingMessage.prototype.getSecureCookie = function( name ) {
           var value = this.getCookie( name );
 
@@ -66,15 +66,27 @@ var mutateHttp = function(http){
 
           return processCookie(name, value);
      };
-     
+
      // this probably isn't kosher, but it's the best way to keep the interface sane.
      var _writeHead = http.ServerResponse.prototype.writeHead;
-     http.ServerResponse.prototype.writeHead = function ( statusCode, headers ) {
-         var cookies = this.cookies || ( this.cookies = [] );
-         headers["Set-Cookie"] = cookies.join(", ");
-         _writeHead.call( this, statusCode, headers );
-     }; 
-     
+     var COOKIE_KEY = 'Set-Cookie', slice = Array.prototype.slice;
+     http.ServerResponse.prototype.writeHead = function () {
+       // Honor the passed args and method signature (see http.writeHead docs)
+       var args = slice.call(arguments), headers = args[args.length-1];
+       if (!headers || typeof(headers) != 'object') {
+         // No header arg - create and append to args list
+         args.push(headers = []);
+       }
+
+       // Merge cookie values
+       var prev = headers[COOKIE_KEY], cookies = this.cookies || [];
+       if (prev) cookies.push(prev);
+       headers[COOKIE_KEY] = cookies.join(", ");
+
+       // Invoke original writeHead()
+       _writeHead.apply(this, args);
+     };
+
      http.ServerResponse.prototype.setCookie = function( name, value, options ) {
           var cookies = this.cookies || ( this.cookies = [] ),
              cookie = [ name, "=", value, ";" ];
@@ -94,7 +106,7 @@ var mutateHttp = function(http){
              cookie.push( " secure" );
              cookies.push( cookie.join("") );
      };
-     
+
      http.ServerResponse.prototype.generateCookieValue = function( value, options ) {
          options = options || {};
          options.expires = options.expires || new Date( +new Date + 30 * 24 * 60 * 60 * 1000 );
@@ -106,19 +118,19 @@ var mutateHttp = function(http){
 
          return value;
       };
-     
+
      http.ServerResponse.prototype.setSecureCookie = function( name, value, options ) {
          options = options || {};
          options.expires = options.expires || new Date( +new Date + 30 * 24 * 60 * 60 * 1000 );
          value = this.generateCookieValue(value, options);
          this.setCookie( name, value, options );
      };
-     
+
      http.ServerResponse.prototype.clearCookie = function( name, options ) {
          options.expires = new Date( +new Date - 30 * 24 * 60 * 60 * 1000 );
          this.setCookie( name, "", options );
-     }; 
-}
+     };
+};
 
 mutateHttp(require('http'));
 
@@ -126,11 +138,11 @@ mutateHttp(require('http'));
 function cookieSecret() {
   if ( exports.secret )
     return exports.secret;
-    
+
   sys.error(
     "No cookie secret is set. A temporary secret will be used for now, " +
     "but all cookies will be invalidated when the server is restarted."
   );
-  
+
   return exports.secret = hex_hmac_sha1( Math.random(), Math.random() );
 }
