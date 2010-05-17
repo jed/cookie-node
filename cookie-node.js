@@ -127,8 +127,9 @@ var mutateHttp = function(http){
      };
 
      http.ServerResponse.prototype.clearCookie = function( name, options ) {
-         options.expires = new Date( +new Date - 30 * 24 * 60 * 60 * 1000 );
-         this.setCookie( name, "", options );
+       options = options || {};
+       options.expires = new Date( +new Date - 30 * 24 * 60 * 60 * 1000 );
+       this.setCookie( name, "", options );
      };
 };
 
