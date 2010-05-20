@@ -1,0 +1,4 @@
+{ "name" : "cookie-node"
+, "version" : 0.1.0
+, "description" : "A node.js library for handling secure cookies."
+}
