@@ -1,6 +1,6 @@
 var sys = require('sys'),
    http = require('http'),
-   cookie = require('../lib/cookie-node');
+   cookie = require('../');
 
 cookie.secret = "50m3thing-l0ng-@nd-r@nd0m-th@t-n0-0n3-will-gu355";
 
