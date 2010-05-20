@@ -1,4 +1,7 @@
-{ "name" : "cookie-node"
+{ "name" : "cookie"
 , "version" : "v0.1.0"
+, "directories" : { "lib" : "./lib" }
+, "main" : "./lib/cookie-node"
 , "description" : "A node.js library for handling secure cookies."
+, "engines": [ "node" ]
 }
