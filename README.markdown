@@ -1,13 +1,15 @@
 cookie-node.js
 ============
 
-`cookie-node` is a cookie module for [node.js](http://nodejs.org/), based loosely on Tornado's approach to [signed cookies](http://www.tornadoweb.org/documentation#cookies-and-secure-cookies).
+`cookie-node` is a cookie module for [node.js](http://nodejs.org/), based
+loosely on Tornado's approach to [signed cookies](http://www.tornadoweb.org/documentation#cookies-and-secure-cookies).
 
 To start, require the library in your app:
 
     var cookie = require( "./cookie-node" );
 
-This extends the `ServerRequest` and `ServerResponse` objects, allowing you to get cookies on requests and set them on responses for server calls:
+This extends the `ServerRequest` and `ServerResponse` objects, allowing you to
+get cookies on requests and set them on responses for server calls:
 
     function( req, res ) {
       var name = req.getCookie( "name" ),
@@ -20,7 +22,8 @@ This extends the `ServerRequest` and `ServerResponse` objects, allowing you to g
       res.close();
     }
 
-You can also set a cookie secret to enable signed cookies, and prevent forged cookies:
+You can also set a cookie secret to enable signed cookies, and prevent forged
+cookies:
 
     cookie.secret = "myRandomSecretThatNoOneWillGuess";
 
@@ -37,9 +40,13 @@ so that the above becomes:
       res.close();
     }
     
-(You don't need to set the secret, but your cookies will end up being invalidated when the server restarts, and you will be yelled at.)
+(You don't need to set the secret, but your cookies will end up being
+invalidated when the server restarts, and you will be yelled at.)
     
-When you set a secure cookie, the value is stored alongside its expiration date, as well as an HMAC SHA-1 digest of the two values with your secret. If a cookie's signature does not match that calculated on the server, the `getSecureCookie` method returns `null` and an error is logged to `sys`.
+When you set a secure cookie, the value is stored alongside its expiration
+date, as well as an HMAC SHA-1 digest of the two values with your secret. If a
+cookie's signature does not match that calculated on the server, the
+`getSecureCookie` method throws.
 
 If you'd like to clear a cookie, just use `res.clearCookie( name )`.
 

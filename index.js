@@ -1,6 +1,12 @@
-var sys = require( "sys" ),
-    base64 = require('./base64'),
-    hex_hmac_sha1 = require('./sha1').hex_hmac_sha1;
+var 
+  crypto = require('crypto'),
+  base64 = require('./base64');
+
+function hex_hmac_sha1(data, key) {
+  var hmac = crypto.createHmac('sha1', key);
+  hmac.update(data);
+  return hmac.digest('hex');
+}
 
 processCookie = exports.processCookie = function(name, value) {
   var len, parts, expires, remoteSig, localSig;
@@ -8,7 +14,6 @@ processCookie = exports.processCookie = function(name, value) {
   parts = value.replace(/\*/g, '=').split("|");
 
   if ( parts.length !== 4 ) {
-    sys.error( "Invalid cookie: " + name );
     return null;
   }
 
@@ -18,15 +23,13 @@ processCookie = exports.processCookie = function(name, value) {
   remoteSig = parts[3];
 
   if ( expires < new Date ) {
-    sys.error( "Expired cookie: " + name );
     return null;
   }
 
   localSig = hex_hmac_sha1( parts.slice( 0, 3 ).join("|"), cookieSecret() );
 
   if ( localSig !== remoteSig ) {
-    sys.error( "Invalid signature: " + name );
-    return null;
+    throw new Error("invalid cookie signature: " + name);
   }
 
   return value;
@@ -70,7 +73,6 @@ var mutateHttp = function(http){
           var value = this.getCookie( name );
 
           if ( !value ) {
-            sys.error( "No such cookie: " + name );
             return null;
           }
 
@@ -91,7 +93,7 @@ var mutateHttp = function(http){
        // Merge cookie values
        var prev = headers[COOKIE_KEY], cookies = this.cookies || [];
        if (prev) cookies.push(prev);
-       headers[COOKIE_KEY] = cookies.join(", ");
+       if (cookies.length > 0) headers[COOKIE_KEY] = cookies.join(", ");
 
        // Invoke original writeHead()
        _writeHead.apply(this, args);
@@ -137,8 +139,9 @@ var mutateHttp = function(http){
      };
 
      http.ServerResponse.prototype.clearCookie = function( name, options ) {
-         options.expires = new Date( +new Date - 30 * 24 * 60 * 60 * 1000 );
-         this.setCookie( name, "", options );
+       options = options || {};
+       options.expires = new Date( +new Date - 30 * 24 * 60 * 60 * 1000 );
+       this.setCookie( name, "", options );
      };
 };
 
@@ -148,11 +151,6 @@ mutateHttp(require('http'));
 function cookieSecret() {
   if ( exports.secret )
     return exports.secret;
-
-  sys.error(
-    "No cookie secret is set. A temporary secret will be used for now, " +
-    "but all cookies will be invalidated when the server is restarted."
-  );
 
   return exports.secret = hex_hmac_sha1( Math.random(), Math.random() );
 }
