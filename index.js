@@ -96,7 +96,7 @@ var mutateHttp = function(http){
           options = options || {};
 
           if ( options.expires )
-            cookie.push( " expires=", options.expires.toUTCString(), ";" );
+            cookie.push( " expires=", (new Date(options.expires)).toUTCString(), ";" );
 
           if ( options.path )
             cookie.push( " path=", options.path, ";" );
