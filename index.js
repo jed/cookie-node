@@ -111,7 +111,6 @@ var mutateHttp = function(http){
 
      http.ServerResponse.prototype.generateCookieValue = function( value, options ) {
          options = options || {};
-         options.expires = options.expires || new Date( +new Date + 30 * 24 * 60 * 60 * 1000 );
          value = [ (value + '').length, base64.encode( value ), +options.expires ];
          var signature = hex_hmac_sha1( value.join("|"), cookieSecret() );
 
@@ -123,7 +122,6 @@ var mutateHttp = function(http){
 
      http.ServerResponse.prototype.setSecureCookie = function( name, value, options ) {
          options = options || {};
-         options.expires = options.expires || new Date( +new Date + 30 * 24 * 60 * 60 * 1000 );
          value = this.generateCookieValue(value, options);
          this.setCookie( name, value, options );
      };
