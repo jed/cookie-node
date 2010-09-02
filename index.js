@@ -122,7 +122,7 @@ var mutateHttp = function(http){
 
      http.ServerResponse.prototype.setSecureCookie = function( name, value, options ) {
          options = options || {};
-         value = this.generateCookieValue(value, options);
+         value = this.generateCookieValue(value.toString(), options);
          this.setCookie( name, value, options );
      };
 
