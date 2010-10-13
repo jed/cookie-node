@@ -103,10 +103,10 @@ var mutateHttp = function(http){
       cookie.push( " domain=", options.domain, ";" );
     
     if ( options.secure )
-       cookie.push( " secure", ";" );
+      cookie.push( " secure", ";" );
     
     if ( options.httpOnly )
-       cookie.push( " httponly" );
+      cookie.push( " httponly" );
     
     cookies.push( cookie.join("") );
   };
