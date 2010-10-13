@@ -1,4 +1,4 @@
-var 
+var
   crypto = require('crypto'),
   base64 = require('./base64');
 
@@ -103,8 +103,12 @@ var mutateHttp = function(http){
             cookie.push( " domain=", options.domain, ";" );
 
           if ( options.secure )
-             cookie.push( " secure" );
-             cookies.push( cookie.join("") );
+             cookie.push( " secure", ";" );
+
+          if ( options.httpOnly )
+             cookie.push( " httponly" );
+
+          cookies.push( cookie.join("") );
      };
 
      http.ServerResponse.prototype.generateCookieValue = function( value, options ) {
