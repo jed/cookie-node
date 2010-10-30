@@ -1,11 +1,19 @@
-var
-  crypto = require('crypto'),
-  base64 = require('./base64');
+var crypto = require('crypto');
+var Buffer = require('buffer').Buffer;
 
 function hex_hmac_sha1(data, key) {
   var hmac = crypto.createHmac('sha1', key);
   hmac.update(data);
   return hmac.digest('hex');
+}
+
+var base64 = {
+    encode: function(str) {
+        return (new Buffer(str)).toString('base64');
+    },
+    decode: function(str) {
+        return (new Buffer(str, 'base64')).toString('utf8');
+    }
 }
 
 processCookie = exports.processCookie = function(name, value) {
