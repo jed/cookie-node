@@ -1,5 +1,5 @@
 { "name" : "cookie"
-, "version" : "0.1.1"
+, "version" : "0.1.2"
 , "description" : "A node.js library for handling secure cookies."
 , "main" : "./index"
 , "engines": [ "node" ]
