@@ -14,9 +14,9 @@ var base64 = {
     decode: function(str) {
         return (new Buffer(str, 'base64')).toString('utf8');
     }
-}
+};
 
-processCookie = exports.processCookie = function(name, value) {
+var processCookie = exports.processCookie = function(name, value) {
   var len, parts, expires, remoteSig, localSig;
 
   parts = value.replace(/\*/g, '=').split("|");
@@ -30,7 +30,7 @@ processCookie = exports.processCookie = function(name, value) {
   expires = new Date( +parts[2] );
   remoteSig = parts[3];
 
-  if ( expires < new Date ) {
+  if ( expires < Date.now() ) {
     return null;
   }
 
@@ -140,7 +140,7 @@ var mutateHttp = function(http){
   
   http.ServerResponse.prototype.clearCookie = function( name, options ) {
     options = options || {};
-    options.expires = new Date( +new Date - 30 * 24 * 60 * 60 * 1000 );
+    options.expires = new Date( Date.now() - 30 * 24 * 60 * 60 * 1000 );
     this.setCookie( name, "", options );
   };
 };
