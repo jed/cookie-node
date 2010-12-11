@@ -89,7 +89,7 @@ var mutateHttp = function(http){
     // Merge cookie values
     var prev = headers[COOKIE_KEY], cookies = this.cookies || [];
     if (prev) cookies.push(prev);
-    if (cookies.length > 0) headers[COOKIE_KEY] = cookies.join(", ");
+    if (cookies.length > 0) headers[COOKIE_KEY] = cookies.join(" ");
   
     // Invoke original writeHead()
     _writeHead.apply(this, args);
