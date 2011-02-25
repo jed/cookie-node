@@ -1,6 +1,10 @@
 cookie-node.js
 ============
 
+# NOTE: This library has been deprecated.
+
+Please use [Cookies](/jed/cookies) instead. Not only is it built on the latest version of node.js without any cruft from older versions, but the signing mechanism has been factored out into [Keygrip](/jed/keygrip), a more flexible and performant library.
+
 `cookie-node` is a cookie module for [node.js](http://nodejs.org/), based
 loosely on Tornado's approach to [signed cookies](http://www.tornadoweb.org/documentation#cookies-and-secure-cookies).
 

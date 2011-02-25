@@ -1,6 +1,6 @@
 { "name" : "cookie"
-, "version" : "0.1.4"
-, "description" : "A node.js library for handling secure cookies."
+, "version" : "0.1.5"
+, "description" : "A deprecated node.js library for handling secure cookies."
 , "main" : "./index"
 , "engines": [ "node" ]
 }

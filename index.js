@@ -1,3 +1,8 @@
+console.warn(
+  "This library has been deprecated.",
+  "Please use `npm install cookies` instead."
+)
+
 var crypto = require('crypto');
 var Buffer = require('buffer').Buffer;
 
